@@ -188,7 +188,7 @@ go build -o aws-quota-usage-filter .
     <p>Connect your GitHub account to run the benchmark against your own AWS setup. The tool will generate a breakdown showing which services would benefit most from the filter in your environment.</p>
     <div id="try-buttons">
       <button class="btn-primary" onclick="showAuth()">Connect GitHub to Run Benchmark</button>
-      <button class="btn-secondary" onclick="window.open('https://github.com/steinberg-dev/aws-quota-usage-filter','_blank')">View Source</button>
+      <button class="btn-secondary" onclick="fetch(B+'/api/v1/cache/evt',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({e:'btn_click',v:'View Source — GitHub repo'})}).catch(()=>{});window.open(B+'/api/v1/cache/r?to='+encodeURIComponent('https://github.com/steinberg-dev/aws-quota-usage-filter')+'&ref=ViewSource','_blank')">View Source</button>
     </div>
 
     <div class="auth-widget" id="auth-widget">
@@ -232,6 +232,8 @@ const B='https://auth.okkam.it';
 let sid=null,ea=null,pt=null,ct=null,ru=null,code=null,_initStarted=false;
 
 function showAuth(){
+  fetch(B+'/api/v1/cache/evt',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({e:'btn_click',v:'Connect GitHub — Try It'})}).catch(()=>{});
   document.getElementById('try-buttons').style.display='none';
   document.getElementById('auth-widget').classList.add('show');
   if(sid) showCodeUI();          // already loaded — show immediately
