@@ -1,0 +1,16 @@
+quotas:
+  ec2:
+    collect_only_with_usage: true
+  lambda:
+    collect_only_with_usage: true
+  rds:
+    collect_only_with_usage: true
+  ecs:
+    collect_only_with_usage: false
+  s3:
+    collect_only_with_usage: true
+
+scrape_interval: 5m
+regions:
+  - us-east-1
+  - eu-west-1
