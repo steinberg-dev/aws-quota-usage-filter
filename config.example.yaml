@@ -1,0 +1,13 @@
+# Example: filter-only quotas with CloudWatch usage
+quotas:
+  ec2:
+    collect_only_with_usage: true  # 1742 -> 31 quotas
+  lambda:
+    collect_only_with_usage: true  # 312 -> 18 quotas
+  rds:
+    collect_only_with_usage: true
+scrape_interval: 5m
+regions:
+  - us-east-1
+  - eu-west-1
+  - ap-southeast-1
